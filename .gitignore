@@ -1,0 +1,8 @@
+/vendor/
+/storage/
+/.env
+/.env.local
+/.phpunit.result.cache
+/.idea
+# Built widget bundle — single source is the core JS build; `make vendor-umd` refreshes it.
+/public/file-uploader.umd.js

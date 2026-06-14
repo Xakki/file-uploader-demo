@@ -1,0 +1,39 @@
+# S3 overlay: run the demo against MinIO instead of the local filesystem.
+#   COMPOSE_FILE=docker-compose.yml:s3.yml docker compose up   (or `make s3-up`)
+# Flips STORAGE=s3 on php and adds a MinIO + a one-shot bucket creator. php reaches
+# MinIO over the compose network at the S3_ENDPOINT from env.dist (http://minio:9000).
+services:
+  php:
+    environment:
+      STORAGE: s3
+    depends_on:
+      - createbucket
+
+  minio:
+    image: minio/minio
+    hostname: ${COMPOSE_PROJECT_NAME}-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET:-minioadmin}
+    networks:
+      - default
+    volumes:
+      - minio-data:/data
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+
+  createbucket:
+    image: minio/mc
+    depends_on:
+      - minio
+    networks:
+      - default
+    entrypoint: >
+      sh -c "until mc alias set m http://minio:9000 ${S3_KEY:-minioadmin} ${S3_SECRET:-minioadmin}; do sleep 2; done;
+             mc mb -p m/${S3_BUCKET:-uploads}; mc anonymous set download m/${S3_BUCKET:-uploads}; echo bucket-ready"
+
+volumes:
+  minio-data:

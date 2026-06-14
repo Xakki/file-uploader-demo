@@ -1,0 +1,22 @@
+{
+    "name": "xakki/file-uploader-demo",
+    "version": "0.1",
+    "description": "Standalone (non-Laravel) demo of the file-uploader core: protocol API over filesystem or S3 + widget.",
+    "type": "project",
+    "license": "GPL-3.0-or-later",
+    "require": {
+        "php": "^8.3|^8.4|^8.5",
+        "xakki/file-uploader": "^0.3",
+        "xakki/fluent-log": "^0.1.1",
+        "league/flysystem": "^3",
+        "league/flysystem-async-aws-s3": "^3",
+        "async-aws/s3": "^2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Demo\\": "src/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

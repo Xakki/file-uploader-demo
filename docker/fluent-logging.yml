@@ -1,0 +1,51 @@
+# Logging overlay (fluent-bit → Graylog GELF). Activated via COMPOSE_FILE in env.dist,
+# so it merges into every `make`/`docker compose` invocation. Includes the pipeline
+# shipped by xakki/fluent-log (fluent-bit + logrotate); see the `fluent-logging` skill.
+#
+# YAML anchors are file-local and do NOT cross `include`, so the x-logging anchor is
+# re-declared here. The demo's php + nginx get the fluentd log driver + tier/log_format
+# labels (which select the fluent-bit parser set) + depend on fluent-bit.
+include:
+    - vendor/xakki/fluent-log/docker-fluent.yml
+
+x-logging: &_logging
+    logging:
+        driver: fluentd
+        options:
+            fluentd-address: "${EXT_FLUENT_PORT}"
+            fluentd-async: "true"
+            fluentd-async-reconnect-interval: "1000ms"
+            fluentd-buffer-limit: 8388608
+            fluentd-write-timeout: "100s"
+            tag: "service.{{.Name}}"
+            labels: "com.docker.compose.service,com.docker.compose.project,com.docker.compose.image,tier,log_format"
+
+services:
+    php:
+        <<: *_logging
+        labels:
+            tier: "web"
+            log_format: "php"
+        depends_on:
+            fluent-bit:
+                condition: service_started
+
+    cron:
+        <<: *_logging
+        labels:
+            tier: "cron"
+            log_format: "php"
+        depends_on:
+            fluent-bit:
+                condition: service_started
+
+    nginx:
+        <<: *_logging
+        labels:
+            tier: "proxy"
+            log_format: "nginx"
+        depends_on:
+            php:
+                condition: service_started
+            fluent-bit:
+                condition: service_started

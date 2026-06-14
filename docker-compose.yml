@@ -1,0 +1,116 @@
+x-app-env: &_app_env
+    PUID: ${PUID:-0}
+    PGID: ${PGID:-0}
+    TZ: ${TZ:-UTC}
+    APP_ENV: ${APP_ENV:-dev}
+    APP_URL: ${APP_URL:-}
+    COMPOSER_NO_DEV: ${COMPOSER_NO_DEV:-0}
+    STORAGE: ${STORAGE:-local}
+    S3_ENDPOINT: ${S3_ENDPOINT:-}
+    S3_KEY: ${S3_KEY:-}
+    S3_SECRET: ${S3_SECRET:-}
+    S3_BUCKET: ${S3_BUCKET:-uploads}
+    S3_REGION: ${S3_REGION:-us-east-1}
+    # Upload tuning — empty falls back to the defaults in src/Config.php.
+    FU_CHUNK_SIZE: ${FU_CHUNK_SIZE:-}
+    FU_MAX_SIZE: ${FU_MAX_SIZE:-}
+    FU_MAX_FILES: ${FU_MAX_FILES:-}
+    FU_ALLOWED_EXTENSIONS: ${FU_ALLOWED_EXTENSIONS:-}
+    FU_TRASH_TTL_DAYS: ${FU_TRASH_TTL_DAYS:-}
+    # gc expiry window — php and cron must agree on this.
+    EXPIRE_MINUTES: ${EXPIRE_MINUTES:-}
+
+# Standalone demo: nginx + php-fpm over a unix socket, mirroring profmatrix.
+# Image is the prebuilt harbor php-fpm-dev; its /entrypoint.sh remaps www-data to
+# PUID:PGID and starts php-fpm. The core (`xakki/file-uploader`) is a regular
+# Composer dependency from Packagist (no working-tree mount); the widget UMD is
+# pulled from the published npm package by `make vendor-umd` into public/.
+services:
+    php:
+        image: ${DOCKER_IMAGE_PHP}
+        hostname: ${COMPOSE_PROJECT_NAME}-php
+        restart: unless-stopped
+        stop_grace_period: 10s
+        stop_signal: SIGTERM
+        working_dir: /app
+        security_opt:
+            - no-new-privileges:true
+        networks:
+            - default
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        tmpfs:
+            - /tmp
+        volumes:
+            - ./:/app
+            - ./docker/php/php-fpm.ini:/usr/local/etc/php/conf.d/app.ini:ro
+            - ./docker/php/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf:ro
+            - sock:/run/sock
+        environment:
+            ENABLED_SUPERVISORD: "0"
+            ENABLED_PHP_FPM: "1"
+            <<: *_app_env
+        healthcheck:
+            test: [ "CMD-SHELL", "pgrep -f '^php-fpm: master' > /dev/null || exit 1" ]
+            interval: 30s
+            timeout: 3s
+            retries: 3
+            start_period: 10s
+
+    # Separate container that runs bin/gc.php in a loop to expire guest files. Runs
+    # as the host user (the harbor entrypoint's PUID remap is bypassed because we
+    # override the entrypoint), so gc never creates root-owned files in storage/.
+    cron:
+        image: ${DOCKER_IMAGE_PHP}
+        hostname: ${COMPOSE_PROJECT_NAME}-cron
+        user: "${PUID:-1000}:${PGID:-1000}"
+        restart: unless-stopped
+        working_dir: /app
+        entrypoint: [ "sh", "-lc" ]
+        command: [ 'while true; do php /app/bin/gc.php || true; sleep ${GC_INTERVAL:-300}; done' ]
+        security_opt:
+            - no-new-privileges:true
+        networks:
+            - default
+        tmpfs:
+            - /tmp
+        volumes:
+            - ./:/app
+            - ./docker/php/php-fpm.ini:/usr/local/etc/php/conf.d/app.ini:ro
+        environment:
+            GC_INTERVAL: ${GC_INTERVAL:-}
+            <<: *_app_env
+        depends_on:
+            - php
+        # The base php image ships a HEALTHCHECK for the php-fpm master; this container
+        # runs the gc loop instead (no fpm), so that check would always fail. Disable it
+        # — liveness here is `restart: unless-stopped` + the loop itself.
+        healthcheck:
+            disable: true
+
+    nginx:
+        image: ${DOCKER_IMAGE_NGINX}
+        hostname: ${COMPOSE_PROJECT_NAME}-nginx
+        restart: unless-stopped
+        stop_grace_period: 5s
+        networks:
+            - default
+        depends_on:
+            - php
+        volumes:
+            - ./public:/app/public:ro
+            # Package icons (logo + favicon) served from the core package's assets dir,
+            # vendored at vendor/xakki/file-uploader/assets (ships in the Composer dist).
+            - ./vendor/xakki/file-uploader/assets:/app/assets:ro
+            - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+            - sock:/run/sock
+        ports:
+            - "${EXT_NGINX_PORT:-127.0.0.1:10080}:80"
+
+networks:
+    default:
+        name: "${COMPOSE_PROJECT_NAME}-network"
+
+volumes:
+    sock:
