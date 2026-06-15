@@ -6,7 +6,7 @@
     "license": "GPL-3.0-or-later",
     "require": {
         "php": "^8.3|^8.4|^8.5",
-        "xakki/file-uploader": "^0.3",
+        "xakki/file-uploader": "^0.3.4",
         "xakki/fluent-log": "^0.1.1",
         "league/flysystem": "^3",
         "league/flysystem-async-aws-s3": "^3",

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c56a9bc3f8c58416f8008be033b7f71b",
+    "content-hash": "086f36054c9c2173cf9edbeb6ce03c81",
     "packages": [
         {
             "name": "async-aws/core",
@@ -923,16 +923,16 @@
         },
         {
             "name": "xakki/file-uploader",
-            "version": "0.3.2",
+            "version": "0.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Xakki/file-uploader.git",
-                "reference": "7f2cbcd038b2120c3efa6567b454322928a54f02"
+                "reference": "59a4d443b7dd78d9c53f7de2dd507ae8a69d94f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Xakki/file-uploader/zipball/7f2cbcd038b2120c3efa6567b454322928a54f02",
-                "reference": "7f2cbcd038b2120c3efa6567b454322928a54f02",
+                "url": "https://api.github.com/repos/Xakki/file-uploader/zipball/59a4d443b7dd78d9c53f7de2dd507ae8a69d94f8",
+                "reference": "59a4d443b7dd78d9c53f7de2dd507ae8a69d94f8",
                 "shasum": ""
             },
             "require": {
@@ -949,7 +949,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Xakki\\FileUploader\\": "src/"
+                    "Xakki\\FileUploader\\": "php/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -959,9 +959,9 @@
             "description": "Framework-agnostic chunked file uploader core (Upload Protocol v1).",
             "support": {
                 "issues": "https://github.com/Xakki/file-uploader/issues",
-                "source": "https://github.com/Xakki/file-uploader/tree/v0.3.2"
+                "source": "https://github.com/Xakki/file-uploader/tree/v0.3.4"
             },
-            "time": "2026-06-14T00:03:48+00:00"
+            "time": "2026-06-15T15:16:56+00:00"
         },
         {
             "name": "xakki/fluent-log",
