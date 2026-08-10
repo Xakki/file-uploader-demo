@@ -136,3 +136,10 @@ The upload caps from [Configuration](#configuration) (`FU_MAX_FILES`, `FU_MAX_SI
 its own quota, independent of every other visitor. The
 [expiry GC](#expiry--garbage-collection) is per-folder too: a guest's active files are
 auto-hard-deleted after `EXPIRE_MINUTES` (default 60 = 1h).
+
+## Fluent Log case
+
+Add to `.env.local`
+```
+#COMPOSE_FILE=docker-compose.yml:vendor/xakki/fluent-log/docker-fluent.yml::docker/fluent-logging.yml
+```

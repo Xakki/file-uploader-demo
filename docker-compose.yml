@@ -33,6 +33,7 @@ services:
         stop_grace_period: 10s
         stop_signal: SIGTERM
         working_dir: /app
+        init: true
         security_opt:
             - no-new-privileges:true
         networks:
@@ -56,6 +57,11 @@ services:
             timeout: 3s
             retries: 3
             start_period: 10s
+        deploy:
+            resources:
+                limits:
+                    cpus: "0.5"
+                    memory: 128M
 
     # Separate container that runs bin/gc.php in a loop to expire guest files. Runs
     # as the host user (the harbor entrypoint's PUID remap is bypassed because we
@@ -68,6 +74,7 @@ services:
         working_dir: /app
         entrypoint: [ "sh", "-lc" ]
         command: [ 'while true; do php /app/bin/gc.php || true; sleep ${GC_INTERVAL:-300}; done' ]
+        init: true
         security_opt:
             - no-new-privileges:true
         networks:
@@ -87,12 +94,18 @@ services:
         # — liveness here is `restart: unless-stopped` + the loop itself.
         healthcheck:
             disable: true
+        deploy:
+            resources:
+                limits:
+                    cpus: "0.5"
+                    memory: 128M
 
     nginx:
         image: ${DOCKER_IMAGE_NGINX}
         hostname: ${COMPOSE_PROJECT_NAME}-nginx
         restart: unless-stopped
         stop_grace_period: 5s
+        init: true
         networks:
             - default
         depends_on:
@@ -107,6 +120,11 @@ services:
             - sock:/run/sock
         ports:
             - "${EXT_NGINX_PORT:-127.0.0.1:10080}:80"
+        deploy:
+            resources:
+                limits:
+                    cpus: "0.5"
+                    memory: 128M
 
 networks:
     default:

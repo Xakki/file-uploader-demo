@@ -5,8 +5,7 @@
 # YAML anchors are file-local and do NOT cross `include`, so the x-logging anchor is
 # re-declared here. The demo's php + nginx get the fluentd log driver + tier/log_format
 # labels (which select the fluent-bit parser set) + depend on fluent-bit.
-include:
-    - vendor/xakki/fluent-log/docker-fluent.yml
+
 
 x-logging: &_logging
     logging:
@@ -26,18 +25,12 @@ services:
         labels:
             tier: "web"
             log_format: "php"
-        depends_on:
-            fluent-bit:
-                condition: service_started
 
     cron:
         <<: *_logging
         labels:
             tier: "cron"
             log_format: "php"
-        depends_on:
-            fluent-bit:
-                condition: service_started
 
     nginx:
         <<: *_logging
@@ -46,6 +39,4 @@ services:
             log_format: "nginx"
         depends_on:
             php:
-                condition: service_started
-            fluent-bit:
                 condition: service_started
