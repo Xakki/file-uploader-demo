@@ -1,6 +1,6 @@
 # Logging overlay (fluent-bit → Graylog GELF). Activated via COMPOSE_FILE in env.dist,
 # so it merges into every `make`/`docker compose` invocation. Includes the pipeline
-# shipped by xakki/fluent-log (fluent-bit + logrotate); see the `fluent-logging` skill.
+# shipped by xakki/log-fluent (fluent-bit + logrotate); see the `fluent-logging` skill.
 #
 # YAML anchors are file-local and do NOT cross `include`, so the x-logging anchor is
 # re-declared here. The demo's php + nginx get the fluentd log driver + tier/log_format
