@@ -86,7 +86,7 @@ final class Factory
 
     /**
      * Best-effort structured JSON logger: emits single-line JSON to stderr, which
-     * php-fpm forwards to the fluent-bit pipeline shipped by xakki/fluent-log.
+     * php-fpm forwards to the fluent-bit pipeline shipped by xakki/log-fluent.
      * Logging must never break a request, so any failure falls back to NullLogger.
      */
     public function logger(): LoggerInterface

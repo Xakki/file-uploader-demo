@@ -7,7 +7,7 @@
     "require": {
         "php": "^8.3|^8.4|^8.5",
         "xakki/file-uploader": "^0.3.4",
-        "xakki/log-fluent": "^0.1.12",
+        "xakki/log-fluent": "^0.4",
         "league/flysystem": "^3",
         "league/flysystem-async-aws-s3": "^3",
         "async-aws/s3": "^2"

@@ -141,5 +141,5 @@ auto-hard-deleted after `EXPIRE_MINUTES` (default 60 = 1h).
 
 Add to `.env.local`
 ```
-#COMPOSE_FILE=docker-compose.yml:vendor/xakki/fluent-log/docker-fluent.yml::docker/fluent-logging.yml
+#COMPOSE_FILE=docker-compose.yml:vendor/xakki/log-fluent/docker-fluent.yml::docker/fluent-logging.yml
 ```

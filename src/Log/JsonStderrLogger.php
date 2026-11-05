@@ -16,7 +16,7 @@ use Throwable;
  * traces the core logs via (string) $e) inside the JSON string, keeping it single
  * line. Logging must never break a request, so all failures are swallowed.
  *
- * The xakki/fluent-log package (in vendor) supplies the Docker pipeline, not a PHP
+ * The xakki/log-fluent package (in vendor) supplies the Docker pipeline, not a PHP
  * logger; this tiny adapter is the PHP side that emits the structured JSON it ships.
  */
 final class JsonStderrLogger extends AbstractLogger
